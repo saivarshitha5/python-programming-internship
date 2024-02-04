@@ -1,0 +1,64 @@
+import speech_recognition as sr
+import pyttsx3
+import webbrowser
+import datetime
+
+def speak(text):
+    engine = pyttsx3.init()
+    engine.say(text)
+    engine.runAndWait()
+
+def listen():
+    recognizer = sr.Recognizer()
+
+    with sr.Microphone() as source:
+        print("Listening...")
+        recognizer.adjust_for_ambient_noise(source,duration=0.5)
+        print('ask me anything....')
+        audio = recognizer.listen(source)
+
+    try:
+        print("Recognizing...")
+        query = recognizer.recognize_google(audio)
+        print(f"You said: {query}")
+        return query.lower()
+    except sr.UnknownValueError:
+        print("Sorry, I couldn't understand that.")
+        return None
+    except sr.RequestError as e:
+        print(f"Could not request results from Google Speech Recognition service; {e}")
+        return None
+
+def perform_task(command):
+    if "hello" in command:
+        speak("Hello! How can I assist you today?")
+    elif "time" in command:
+        current_time = datetime.datetime.now().strftime("%H:%M:%S")
+        speak(f"The current time is {current_time}.")
+    elif "date" in command:
+        current_date = datetime.date.today().strftime("%Y-%m-%d")
+        speak(f"Today's date is {current_date}.")
+    elif "search" in command:
+        search_query = command.replace("search", "").strip()
+        search_url = f"https://www.google.com/search?q={search_query}"
+        webbrowser.open(search_url)
+    elif "open youtube" in command:
+         speak("here u go to youtube\n")
+         webbrowser.open("youtube.com")
+    elif "exit" in command or "goodbye" in command:
+        speak("Goodbye! Have a great day.")
+        exit()
+    else:
+        speak("Sorry, I didn't understand that. Can you please repeat?")
+
+def main():
+    speak("Hello! I'm your voice assistant. How can I help you today?")
+
+    while True:
+        command = listen()
+
+        if command:
+            perform_task(command)
+
+if __name__ == "__main__":
+    main()
